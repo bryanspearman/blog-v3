@@ -20,7 +20,7 @@ postSchema.methods.serialize = function() {
     id: this._id,
     title: this.title,
     content: this.content,
-    author: this.author
+    author: this.authorString
   };
 };
 
