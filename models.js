@@ -40,6 +40,7 @@ postSchema.methods.serialize = function() {
     title: this.title,
     content: this.content,
     author: this.authorName,
+    comments: this.commentSchema,
     created: this.created
   };
 };
