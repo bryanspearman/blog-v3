@@ -25,7 +25,7 @@ const authorSchema = mongoose.Schema({
   }
 });
 
-postSchema.virtual("authorString").get(function() {
+postSchema.virtual("authorName").get(function() {
   return `${this.author.firstName} ${this.author.lastName}`.trim();
 });
 
@@ -34,7 +34,7 @@ postSchema.methods.serialize = function() {
     id: this._id,
     title: this.title,
     content: this.content,
-    author: this.authorString,
+    author: this.authorName,
     created: this.created
   };
 };
