@@ -11,7 +11,12 @@ const postSchema = mongoose.Schema({
   comments: [commentSchema]
 });
 
-postSchema.pre("findOne", function(next) {
+postSchema.pre("findById", function(next) {
+  this.populate("author");
+  next();
+});
+
+postSchema.pre("find", function(next) {
   this.populate("author");
   next();
 });
