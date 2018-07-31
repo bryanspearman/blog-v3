@@ -11,6 +11,11 @@ const postSchema = mongoose.Schema({
   comments: [commentSchema]
 });
 
+postSchema.pre("findOne", function(next) {
+  this.populate("author");
+  next();
+});
+
 const authorSchema = mongoose.Schema({
   firstName: "string",
   lastName: "string",

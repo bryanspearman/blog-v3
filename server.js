@@ -12,15 +12,17 @@ const app = express();
 app.use(express.json());
 app.use(morgan("common"));
 
+// GET by blog title
 app.get("/posts", (req, res) => {
   const filters = {};
-  const queryableFields = ["title", "author"];
+  const queryableFields = ["title"];
   queryableFields.forEach(field => {
     if (req.query[field]) {
       filters[field] = req.query[field];
     }
   });
   Post.find(filters)
+    .populate("author")
     .then(Posts => res.json(Posts.map(post => post.serialize())))
     .catch(err => {
       console.error(err);
@@ -32,6 +34,7 @@ app.get("/posts", (req, res) => {
 
 app.get("/posts/:id", (req, res) => {
   Post.findById(req.params.id)
+    .populate("author")
     .then(post => res.json(post.serialize()))
     .catch(err => {
       console.error(err);
@@ -41,6 +44,7 @@ app.get("/posts/:id", (req, res) => {
 
 app.get("/posts", (req, res) => {
   Post.find()
+    .populate("author")
     .limit(10)
     .then(posts => {
       res.json({
