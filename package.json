@@ -1,26 +1,26 @@
 {
-    "name": "blog-v3",
-    "version": "1.0.0",
-    "description": "Blog application test",
-    "repository": "https://github.com/bryanspearman/blog-v3.git",
-    "main": "index.js",
-    "scripts": {
-        "start": "node server.js",
-        "test": "mocha"
-    },
-    "keywords": [],
-    "author": "",
-    "license": "MIT",
-    "dependencies": {
-        "body-parser": "^1.18.3",
-        "express": "^4.16.3",
-        "mongoose": "^5.2.5",
-        "morgan": "^1.9.0"
-    },
-    "devDependencies": {
-        "chai": "^4.1.2",
-        "chai-http": "^4.0.0",
-        "faker": "^4.1.0",
-        "mocha": "^5.2.0"
-    }
+  "name": "blog-v3",
+  "version": "1.0.0",
+  "description": "Blog application test",
+  "repository": "https://github.com/bryanspearman/blog-v3.git",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "mocha"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.16.3",
+    "mongoose": "^5.2.5",
+    "morgan": "^1.9.0",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "chai-http": "^4.0.0",
+    "faker": "^4.1.0",
+    "mocha": "^5.2.0"
+  }
 }
