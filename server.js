@@ -44,7 +44,7 @@ app.get("/posts/:id", (req, res) => {
 });
 
 app.post("/posts", (req, res) => {
-  const requiredFields = ["title", "content", "author_id"];
+  const requiredFields = ["title", "content", "author"];
   requiredFields.forEach(field => {
     if (!(field in req.body)) {
       const message = `Missing \`${field}\` in request body`;
@@ -54,13 +54,13 @@ app.post("/posts", (req, res) => {
   });
 
   //author validation
-  Author.findById(req.body.author_id)
+  Author.findById(req.body.author)
     .then(author => {
       if (author) {
         Post.create({
           title: req.body.title,
           content: req.body.content,
-          author: req.body.id
+          author: author
         })
           .then(Post =>
             res.status(201).json({
