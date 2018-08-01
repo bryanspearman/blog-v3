@@ -1,6 +1,16 @@
 "use strict";
 
 const mongoose = require("mongoose");
+mongoose.Promise = global.Promise;
+
+const authorSchema = mongoose.Schema({
+  firstName: "string",
+  lastName: "string",
+  userName: {
+    type: "string",
+    unique: true
+  }
+});
 
 const commentSchema = mongoose.Schema({ content: "string" });
 
@@ -11,23 +21,14 @@ const postSchema = mongoose.Schema({
   comments: [commentSchema]
 });
 
-postSchema.pre("findById", function(next) {
-  this.populate("author");
-  next();
-});
-
 postSchema.pre("find", function(next) {
   this.populate("author");
   next();
 });
 
-const authorSchema = mongoose.Schema({
-  firstName: "string",
-  lastName: "string",
-  userName: {
-    type: "string",
-    unique: true
-  }
+postSchema.pre("findOne", function(next) {
+  this.populate("author");
+  next();
 });
 
 postSchema.virtual("authorName").get(function() {
@@ -40,12 +41,11 @@ postSchema.methods.serialize = function() {
     title: this.title,
     content: this.content,
     author: this.authorName,
-    comments: this.commentSchema,
-    created: this.created
+    comments: this.comments
   };
 };
 
 const Post = mongoose.model("Post", postSchema);
 const Author = mongoose.model("Author", authorSchema);
 
-module.exports = { Post };
+module.exports = { Post, Author };

@@ -3,42 +3,12 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const morgan = require("morgan");
-const bodyParser = require("body-parser");
 mongoose.Promise = global.Promise;
 const { PORT, DATABASE_URL } = require("./config");
-const { Post } = require("./models");
-const jsonParser = bodyParser.json();
+const { Post, Author } = require("./models");
 const app = express();
 app.use(express.json());
 app.use(morgan("common"));
-
-// GET by blog title
-app.get("/posts", (req, res) => {
-  const filters = {};
-  const queryableFields = ["title"];
-  queryableFields.forEach(field => {
-    if (req.query[field]) {
-      filters[field] = req.query[field];
-    }
-  });
-  Post.find(filters)
-    .then(Posts => res.json(Posts.map(post => post.serialize())))
-    .catch(err => {
-      console.error(err);
-      res.status(500).json({
-        message: "We could not find that blog post title"
-      });
-    });
-});
-
-app.get("/posts/:id", (req, res) => {
-  Post.findById(req.params.id)
-    .then(post => res.json(post.serialize()))
-    .catch(err => {
-      console.error(err);
-      res.status(500).json({ message: "We could not find that blog post id" });
-    });
-});
 
 app.get("/posts", (req, res) => {
   Post.find()
@@ -52,20 +22,36 @@ app.get("/posts", (req, res) => {
       console.error(err);
       res
         .status(500)
-        .json({ message: "Internal server error - unable to get posts" });
+        .json({ message: "Internal server error - unable to get any posts" });
     });
 });
 
-app.post("/posts", jsonParser, (req, res) => {
+app.get("/posts/:id", (req, res) => {
+  Post.findById(req.params.id)
+    .then(post => {
+      res.json({
+        id: post._id,
+        author: post.authorName,
+        content: post.content,
+        title: post.title,
+        comments: post.comments
+      });
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).json({ error: "something went horribly awry" });
+    });
+});
+
+app.post("/posts", (req, res) => {
   const requiredFields = ["title", "content", "author_id"];
-  for (let i = 0; i < requiredFields.length; i++) {
-    const field = requiredFields[i];
+  requiredFields.forEach(field => {
     if (!(field in req.body)) {
       const message = `Missing \`${field}\` in request body`;
       console.error(message);
       return res.status(400).send(message);
     }
-  }
+  });
 
   //author validation
   Author.findById(req.body.author_id)
@@ -76,10 +62,18 @@ app.post("/posts", jsonParser, (req, res) => {
           content: req.body.content,
           author: req.body.id
         })
-          .then(post => res.status(201).json(post.serialize()))
+          .then(Post =>
+            res.status(201).json({
+              id: Post.id,
+              title: Post.title,
+              content: Post.content,
+              author: `${author.firstName} ${author.lastName}`,
+              comments: Post.comments
+            })
+          )
           .catch(err => {
             console.error(err);
-            res.status(500).json({ message: "Internal server error" });
+            res.status(500).json({ error: "Something went wrong" });
           });
       } else {
         const message = `Author not found`;
@@ -93,7 +87,7 @@ app.post("/posts", jsonParser, (req, res) => {
     });
 });
 
-app.put("/posts/:id", jsonParser, (req, res) => {
+app.put("/posts/:id", (req, res) => {
   if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
     const message =
       `Request path id (${req.params.id}) and request body id ` +
@@ -102,7 +96,7 @@ app.put("/posts/:id", jsonParser, (req, res) => {
     return res.status(400).json({ message: message });
   }
   const toUpdate = {};
-  const updateableFields = ["title", "content", "author"];
+  const updateableFields = ["title", "content"];
 
   updateableFields.forEach(field => {
     if (field in req.body) {
@@ -220,7 +214,7 @@ app.put("/authors/:id", (req, res) => {
 });
 
 app.delete("/authors/:id", (req, res) => {
-  BlogPost.remove({ author: req.params.id })
+  Post.remove({ author: req.params.id })
     .then(() => {
       Author.findByIdAndRemove(req.params.id).then(() => {
         console.log(
